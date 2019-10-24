@@ -20,11 +20,25 @@ This should open the Amzi! Development Environment.
 
 ## Coding in Prolog
 
-Open a file and name it hello_world.pro.
+Open a file and name it hello_world.pro. Then create the following rule:
 
 ```prolog
 hello_world :-
   write('Hello, World!'), nl.
 ```
+A rule is a predicate expression that uses logical implication (:-) to describe a relationship among facts. In this case, the code above can be interpreted as: hello/_ if 'Hello, World!' is printed.
 
-Test commit
+To 'consult' the source code, the Prolog Listener will be used. Save the file and start the Listener. The following prompt should be shown:
+
+```prolog
+?-
+```
+
+Consulting the file will load the file to the listener. This can be done directly from the listener:
+
+```prolog
+?- consult(hello_world).
+yes
+```
+
+Each command will return either yes or no: yes if the 
