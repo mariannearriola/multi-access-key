@@ -42,14 +42,6 @@ phylum(moss):-
 	menuask(Attribute,_,_):-
 		known(yes,Attribute,_),
 		!, fail.
-	menuask(Attribute,AskValue,Menu):-
-		nl,write('What is the value for '),write(Attribute),write('?'),nl,
-		display_menu(Menu),
-		write('Enter the number of choice> '),
-		read(Num),nl,
-		pick_menu(Num,AnswerValue,Menu),
-		asserta(known(yes,Attribute,AnswerValue)),
-		AskValue = AnswerValue.
 	display_menu(Menu):-
 		disp_menu(1,Menu), !.
 	disp_menu(_,[]).
