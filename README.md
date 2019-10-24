@@ -26,7 +26,7 @@ Open a file and name it hello_world.pro. Then create the following rule:
 hello_world :-
   write('Hello, World!'), nl.
 ```
-A rule is a predicate expression that uses logical implication (:-) to describe a relationship among facts. In this case, the code above can be interpreted as: hello/_ if 'Hello, World!' is printed.
+A rule is a predicate expression that uses logical implication (:-) to describe a relationship among facts. In this case, the code above can be interpreted as: hello_world if 'Hello, World!' is printed.
 
 To 'consult' the source code, the Prolog Listener will be used. Save the file and start the Listener. The following prompt should be shown:
 
@@ -34,11 +34,22 @@ To 'consult' the source code, the Prolog Listener will be used. Save the file an
 ?-
 ```
 
-Consulting the file will load the file to the listener. This can be done directly from the listener:
+Consulting the file will load the file to the listener. This can be done directly from the listener with the query:
 
 ```prolog
 ?- consult(hello_world).
 yes
 ```
 
-Each command will return either yes or no: yes if the 
+The listener will return either yes or no: yes if the query can be proven true and no if not.
+
+As shown above, hello_world was consulted. We can then run the file:
+
+```prolog
+?- hello_world.
+Hello world
+
+yes
+```
+
+hello_world was run successfully and the query was proven true.
