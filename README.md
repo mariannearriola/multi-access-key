@@ -6,15 +6,17 @@ Species identification key which enables the user to freely choose the character
 
 Prolog is a logic programming language (PROgramming in LOgic) associated with artificial intelligence and computational logistics. It is significantly different from conventional procedural programming. Essentially, logical relationships are asserted and Prolog is used to determine whether certain statements are true, and if true, what variable bindings make them true.
 
-Prolog is an ideal language for this project because of the fact that species traits can be logically linked by implications. This enables a digital multi-access key to have more flexibility in drawing conclusions from the information given by the user.
+Prolog is an ideal language for this project because of the fact that traits can be logically linked by implications. This enables a digital multi-access key to have more flexibility in drawing conclusions from the information given by the user.
 
 ## Installing Amzi! Prolog + Logic Server + IDE
 
 [Click here to travel to the installation page.](https://amzi.com/AmziOpenSource/downloads.php)
 
-Find the downloaded file and complete the navigations below.
+Extract all downloaded files and complete the following navigations.
 
+```
 amzi_apls_(etc) -> apls -> bin -> wideA
+```
 
 This should open the Amzi! Development Environment.
 
@@ -25,8 +27,7 @@ Open a file and name it hello_world.pro. Then create the following rule:
 ```prolog
 hello_world :-
   location(world).
-  location(X) = world -> write('Hello world').
-  
+  location(X) = world -> write('Hello world').  
 ```
 A rule is a predicate expression that uses logical implication (:-) to describe a relationship among facts. In this case, location is a predicate and world is an argument. Therefore, the fact is that the one location contained is world. The code above can be interpreted as: hello_world if 'Hello, World!' location is world. The second clause is essentially an if statement: if location is world, then the program will print 'Hello world'.
 
@@ -65,5 +66,3 @@ yes
 ```
 
 The query was run successfully and we can confirm location has world.
-
-##A simplified digital multi-access key
