@@ -24,9 +24,11 @@ Open a file and name it hello_world.pro. Then create the following rule:
 
 ```prolog
 hello_world :-
-  write('Hello, World!'), nl.
+  location(world).
+  location(X) = world -> write('Hello world').
+  
 ```
-A rule is a predicate expression that uses logical implication (:-) to describe a relationship among facts. In this case, the code above can be interpreted as: hello_world if 'Hello, World!' is printed.
+A rule is a predicate expression that uses logical implication (:-) to describe a relationship among facts. In this case, location is a predicate and world is an argument. Therefore, the fact is that the one location contained is world. The code above can be interpreted as: hello_world if 'Hello, World!' location is world. The second clause is essentially an if statement: if location is world, then the program will print 'Hello world'.
 
 To 'consult' the source code, the Prolog Listener will be used. Save the file and start the Listener. The following prompt should be shown:
 
@@ -52,4 +54,16 @@ Hello world
 yes
 ```
 
-hello_world was run successfully and the query was proven true.
+hello_world was run successfully and the query was proven true. As 'Hello world' was printed, we know that location must be world. We can use a logical variable to find all of the locations that exist in the program:
+
+```prolog
+?- location(X).
+
+X = world
+
+yes
+```
+
+The query was run successfully and we can confirm location has world.
+
+##A simplified digital multi-access key
