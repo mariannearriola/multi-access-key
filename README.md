@@ -71,17 +71,19 @@ The query was run successfully and we can confirm location has world.
 
 A dichotomous key is a tool that allows the user to identify organisms based on information given. It does this by offering two statements, one of which must apply to the organism in question. For example, if the the specimen was a dog, one of the first questions a dichotomous key might ask is: is it a plant or an animal? Then, a dichotomous key would ask if said organism applies to smaller groups until the species in question is finally reached.
 
+Below is a simple dichotmous key that identifies the phylum of a species based on domain and kingdom.
+
 ```prolog
 aSimpleDichotomousKey :- identify.
 
 identify:-
-	retractall(known(_,_,_)),
-	phylum(X),
-	write('The species is in '),write(X),nl.
+	retractall(known(_,_,_)),                   % Resets any past 'knowns' without having to re-consult the program
+	phylum(X),                                  % phylum target/final group that needs to be reached. This initiates the identification program to be run.
+	write('The species is in '),write(X),nl.    % Once the phylum value is found, a final statement is given.
 identify:-
-	write('idk'),nl.
+	write('No species was identified'),nl.      % If no phylum value is found, a final statement is given.
 
-phylum([cyanobacteria,proteobacteria]):-
+phylum([cyanobacteria,proteobacteria]):-            % Three phyla (target groups) and the domain and kingdom that they belong to is given within each rule.
 	domain(bacteria),
 	kingdom(eubacteria).
 phylum(forams):-
@@ -91,46 +93,28 @@ phylum(moss):-
 	domain(eukarya),
 	kingdom(plantae).
 
-	domain(X):- ask(domain,X).
+	domain(X):- ask(domain,X).                  % Information that must be provided by the user.
 	kingdom(X):- ask(kingdom,X).
 
-	ask(Attribute,Value):-
+	ask(Attribute,Value):-                      % If the value is already true for the attribute given, then the value won't be asked for again and the program will narrow down the field.
 		known(yes,Attribute,Value),
 		!.
-	ask(Attribute,Value):-
+	ask(Attribute,Value):-                      % If the value is false for the attribute given, then the value won't be asked for again and the phylum that the statement is in is false.
 		known(_,Attribute,Value),
 		!, fail.
-	ask(Attribute,_):-
+	ask(Attribute,_):-                          % If the value is already false for the attribute given, then no species is identified and the program will not ask for values of a larger scope.
 		known(yes,Attribute,_),
 		!, fail.
-	ask(A,V):-
+	ask(A,V):-                                  % If no value is given for the attribute (domain,kingdom), then the value is asked for.
  		write(A:V),                     
   		write('? (yes or no): '),
   		read(Y),                       
   		asserta(known(Y,A,V)),           
-  		Y = yes.    
-
-	menuask(Attribute,Value,_):-
-		known(yes,Attribute,Value),
-		!.
-	menuask(Attribute,_,_):-
-		known(yes,Attribute,_),
-		!, fail.
-	display_menu(Menu):-
-		disp_menu(1,Menu), !.
-	disp_menu(_,[]).
-	disp_menu(N,[Item | Rest]):-
-		write(N),write(' : '),write(Item),nl,
-		NN is N + 1,
-		disp_menu(NN,Rest).
-
-	pick_menu(N,Val,Menu):-
-		integer(N),
-		pic_menu(1,N,Val,Menu), !.
-		pick_menu(Val,Val,_).
-	pic_menu(_,_,none_of_the_above,[]).
-	pic_menu(N,N,Item,[Item|_]).
-	pic_menu(Ctr,N,Val,[_|Rest]):-
-		NextCtr is Ctr + 1,
-		pic_menu(NextCtr,N,Val,Rest).
+  		Y = yes.
 ```
+
+The problem with this key is that there is a lack of flexibility when it comes to the user experience. For example, a user might not know the domain that an organism is in but might know the kingdom. In addition, with large sets of data, the user would be forced to evaluate behemoths of characteristics to classify certain organisms.
+
+A multi-access key, however, would fix these problems. A user would be able to freely choose certain characteristics to be identified, and in whatever order. If only a few characteristics are picked, then a multi-access key would give insight as to which organisms fit the given criteria.
+
+Although there has been little success with a digital multi-access key, my project aims to create such a product using logical implications in Prolog.
