@@ -59,54 +59,111 @@ yes
 
 The query was run successfully and we can confirm location has world.
 
-## Creating a dichotomous key
+## Creating a simple multi-access key
 
-A dichotomous key is a tool that allows the user to identify organisms based on information given. It does this by offering two statements, one of which must apply to the organism in question. For example, if the the specimen was a dog, one of the first questions a dichotomous key might ask is: is it a plant or an animal? Then, a dichotomous key would ask if said organism applies to smaller groups until the species in question is finally reached.
+A multi-access key enables the user to freely choose the characteristics that are convenient to evaluate for the item to be identified. However, there are few multi-access keys available because achieving dynamic relationships between groups is difficult when using traditional database languages such as SQL. Prolog, however, is able to overcome this barrier by relying on predicate logic.
 
-Below is a simple dichotmous key that identifies the phylum of a species based on domain and kingdom.
+Below is a simple logicbase that defines the relationships between animals, fish, birds, and parrots.
 
 ```prolog
-aSimpleDichotomousKey :- identify.
+% Attatches Logtalk pack
+:- use_module(library(prolog_pack)).
+:- attach_packs(user:file_search_path(logtalk, app_data(logtalk))).
 
-identify:-
-	retractall(known(_,_,_)),                   % Resets any past 'knowns' without having to re-consult the program
-	phylum(X),                                  % phylum target/final group that needs to be reached. This initiates the identification program to be run.
-	write('The species is in '),write(X),nl.    % Once the phylum value is found, a final statement is given.
-identify:-
-	write('No species was identified'),nl.      % If no phylum value is found, a final statement is given.
+% Animal object
+:- object(animal).
 
-phylum([cyanobacteria,proteobacteria]):-            % Three phyla (target groups) and the domain and kingdom that they belong to is given within each rule.
-	domain(bacteria),
-	kingdom(eubacteria).
-phylum(forams):-
-	domain(eukarya),
-	kingdom(protista).
-phylum(moss):-
-	domain(eukarya),
-	kingdom(plantae).
+    :- public(covering/1).
+    covering(skin).  % default covering
 
-	domain(X):- ask(domain,X).                  % Information that must be provided by the user.
-	kingdom(X):- ask(kingdom,X).
+    :- public(travel/1).
 
-	ask(Attribute,Value):-                      % If the value is already true for the attribute given, then the value won't be asked for again and the program will narrow down the field.
-		known(yes,Attribute,Value),
-		!.
-	ask(Attribute,Value):-                      % If the value is false for the attribute given, then the value won't be asked for again and the phylum that the statement is in is false.
-		known(_,Attribute,Value),
-		!, fail.
-	ask(Attribute,_):-                          % If the value is already false for the attribute given, then no species is identified and the program will not ask for values of a larger scope.
-		known(yes,Attribute,_),
-		!, fail.
-	ask(A,V):-                                  % If no value is given for the attribute (domain,kingdom), then the value is asked for.
- 		write(A:V),                     
-  		write('? (yes or no): '),
-  		read(Y),                       
-  		asserta(known(Y,A,V)),           
-  		Y = yes.
+:- end_object.
+
+% Fish object that inherits from animal
+:- object(fish, extends(animal)).
+
+    travel(swim).
+
+:- end_object.
+
+% Bird object that inherits from animal
+:- object(bird, extends(animal)).
+
+    covering(feathers).
+    travel(fly).
+
+    :- public(color/1).
+
+:- end_object.
+
+% Parrot object that inherits from bird and animal
+:- object(parrot, extends(bird)).
+
+    color(bright).
+
+:- end_object.
+
 ```
 
-The problem with this key is that there is a lack of flexibility when it comes to the user experience. For example, a user might not know the domain that an organism is in but might know the kingdom. In addition, with large sets of data, the user would be forced to evaluate behemoths of characteristics to classify certain organisms.
+Queries can be run to retrieve various facts from the logicbase dynamically:
 
-A multi-access key, however, would fix these problems. A user would be able to freely choose certain characteristics to be identified, and in whatever order. If only a few characteristics are picked, then a multi-access key would give insight as to which organisms fit the given criteria.
+```prolog
+?- extends_object(Object,animal).
 
-Although there has been little success with a digital multi-access key, my project aims to create such a product using logical implications in Prolog.
+Object = fish ;
+Object = bird.
+```
+The above query returns all of the objects that inherit from animal directly.
+
+```prolog
+?- parrot::current_predicate(Name/Arity).
+
+Name = color,
+Arity = 1 ;
+Name = covering,
+Arity = 1 ;
+Name = travel,
+Arity = 1 ;
+```
+This query returns all of the names of the properties of parrot, including those inherited by the bird and animal objects.
+
+```prolog
+?- animal::predicate_property(covering(_),Property).
+
+Property = logtalk ;
+Property = scope(public) ;
+Property =  (public) ;
+Property = static ;
+Property = declared_in(animal) ;
+Property = declared_in(animal, 6) ;
+Property = defined_in(animal) ;
+Property = defined_in(animal, 7) ;
+Property = number_of_clauses(1) ;
+Property = number_of_rules(0).
+```
+This query returns all of the properties of a specific predicate.
+
+```prolog
+?- current_object(Object), Object::current_predicate(travel/1),functor(Property,travel,1),Object::Property.
+
+Object = user,
+Property = travel(swim) ;
+Object = user,
+Property = travel(fly) ;
+Object = fish,
+Property = travel(swim) ;
+Object = bird,
+Property = travel(fly) ;
+Object = parrot,
+Property = travel(fly).
+```
+The above query returns all of the objects that travel.
+
+```prolog
+?- current_object(Object), Object::current_predicate(travel/1), Object::current_predicate(color/1), functor(travel(fly),travel,1), functor(color(bright), color, 1), Object::travel(fly), Object::color(bright).
+
+Object = user ;
+Object = parrot.
+```
+This query returns all of the objects that travel by flying and have a bright color, which is only parrot.
