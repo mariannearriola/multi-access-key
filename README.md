@@ -8,17 +8,9 @@ Prolog is a logic programming language (PROgramming in LOgic) associated with ar
 
 Prolog is an ideal language for this project because of the fact that traits can be logically linked by implications. This enables a digital multi-access key to have more flexibility in drawing conclusions from the information given by the user.
 
-## Installing Amzi! Prolog + Logic Server + IDE
+## Installing SWI-Prolog
 
-[Click here to travel to the installation page.](https://amzi.com/AmziOpenSource/downloads.php)
-
-Extract all downloaded files and complete the following navigations.
-
-```
-amzi_apls_(etc) -> apls -> bin -> wideA
-```
-
-This should open the Amzi! Development Environment.
+[Click here to travel to the installation page.](https://www.swi-prolog.org/download/stable)
 
 ## Coding in Prolog
 
