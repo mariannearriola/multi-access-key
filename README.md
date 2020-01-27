@@ -1,6 +1,6 @@
 # Digital Multi-Access Key
 
-Species identification key which enables the user to freely choose the characteristics of a species that are convenient to evaluate for recognition.
+Species identification key written in Javascript and Prolog which enables the user to freely choose the characteristics of a species that are convenient to evaluate for recognition.
 
 ## Prolog
 
