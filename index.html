@@ -17,6 +17,8 @@
                 padding: 3%;
                 padding-top: 5px;
                 margin-left: 5px;
+                display: flex;
+                flex-direction: column;
             }
             .results {
                 background-color: palegoldenrod;
@@ -31,13 +33,51 @@
                 font-size: 20px;
                 font-weight: 500;
             }
+            #mult {
+                border: 2px solid black;
+                background-color: lightgray;
+                font-weight: 900px;
+                margin-top: -30px;
+            }
             button {
                 float: left;
                 background-color: white;
                 border: none;
                 padding: 10px;
-                margin:10px;
-                display: inline-block;
+                margin: 5px 10px 10px 10px;
+            }
+            .sub_button {
+                margin: 3%;
+                display: block;
+                background-color: grey;
+                margin-top: 10px;
+                color: white;
+            }
+            .sub_button:active {
+                background-color: white;
+                color: black;
+                display: block;
+                font-style: italic;
+            }
+            .main_button {
+                margin: 1.5%;
+                background-color: white;
+                position: relative;
+            }
+            .main_button:active {
+                background-color: palegoldenrod;
+            }
+            .selection div {
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+            .show {
+                margin: 1.5%;
+                margin-top: -2%;
+            }
+            .active {
+                background-color: palegoldenrod;
+                color: black;
+                font-style: italic;
             }
         </style>
 
@@ -88,7 +128,6 @@
                 member(ako-Parent, Slots),
                 query(Parent, Slot, Value).
 
-
         </script>
         <script type = "text/javascript">
             var session = pl.create();
@@ -105,18 +144,21 @@
             <h1>Multi-access key</h1>
             <p>A dynamic species identification key in Prolog.
         </div>
-        </p>
     </head>
     <body>
         <div class = "selection">
             <p class = "title">Trait Selection</p>
             <p id = "entry"></p>
+            <button type = "button" id = "mult">Select multiple</button>
         </div>
         <div class = "results">
             <p class = "title">Results</p>
             <div class = "entries"></div>
         </div>
         <script type="text/javascript">
+
+            // CREATING BUTTONS
+
             while(sel != 'false.') {
                 session.answer(callback);
                 if(sel == 'false.') {
@@ -128,7 +170,8 @@
                 var sp2_2 = sp1[2];
                 var slot = sp1_2.split(' ');
                 var val = sp2_2.split(' ');
-                var res = `${slot[1]}: ${val[1]}`;
+                var res = `${slot[1]}`;
+                var subres = `${val[1]}`;
                 var buttons = document.querySelectorAll('button');
                 var change = 0;
                 for(var i = 0, l = buttons.length; i < l; i++) {
@@ -136,31 +179,177 @@
                         change = 1;
                     }
                 }
+
+                // IF BUTTON CAN BE CREATED
+
                 if (change == 0) {
                     var btn = document.createElement("BUTTON");
                     btn.innerHTML = res;
+                    btn.className = "main_button";
                     document.getElementsByClassName("selection")[0].appendChild(btn);
+
+                    // CREATE CONTAINER DIV
+
+                    var container = document.createElement("DIV");
+                    document.getElementsByClassName("selection")[0].appendChild(container);
+                    container.className = btn.innerHTML;
                     var numChildren = 0;
-                    btn.onclick = function() {
-                        var node = document.getElementsByClassName("entries")[0].innerHTML = "";
-                        var contents = this.innerHTML;
-                        var spl1 = contents.split(': ');
-                        parsed = session.query(`query(X,${spl1[0]},${spl1[1]}).`);
-                        var res;
-                        callback = function (answer) { res = pl.format_answer(answer); };
-                        session.answer(callback);
-                        while (res != 'false.') {
-                            if (res == 'false.') {
-                                break;
+                    var multSel = 0;
+                    var mult = document.getElementById("mult");
+                    var selArray = [];
+
+                    // SELECTING MULTIPLE TRAITS
+
+                    mult.onclick = function() {
+                        if(multSel == 0) {
+                            var numClicked = document.getElementsByClassName("active").length;
+                            for(var i = 0; i < numClicked; i++) {
+                                var clicked = document.getElementsByClassName("active")[0];
+                                clicked.classList.remove("active");
                             }
-                            var str = document.createElement("P");
-                            var sp1 = res.split('= ');
-                            var sp2 = sp1[1].split(';');
-                            str.innerHTML = sp2[0];
-                            document.getElementsByClassName('entries')[0].appendChild(str);
-                            session.answer(callback);
-                            numChildren++;
+                            this.style.fontStyle = "italic";
+                            this.style.backgroundColor = "palegoldenrod";
+                            multSel = 1;
                         }
+                        else {
+                            var numClicked = document.getElementsByClassName("active").length;
+                            for(var i = 0; i < numClicked; i++) {
+                                var clicked = document.getElementsByClassName("active")[0];
+                                clicked.classList.remove("active");
+                            }
+                            this.style.fontStyle = "normal";
+                            this.style.backgroundColor = "lightgray";
+                            entry
+                            multSel = 0;
+                            selArray = [];
+                        }
+                    }
+
+                    // BUTTON CLICKED
+                    btn.onclick = function() {
+                        var subArray = [];
+                        // CREATING SUB-BUTTONS
+                        // if main button has already been clicked
+                        if(document.getElementsByClassName(this.innerHTML)[0].firstChild != null) {
+                            while(document.getElementsByClassName(this.innerHTML)[0].children[0] != null) {
+                                var del = document.getElementsByClassName(this.innerHTML)[0].children[0];
+                                if(del === document.getElementsByClassName(this.innerHTML)[0].getElementsByClassName("active")[0]) {
+                                    document.getElementsByClassName(this.innerHTML)[0].getElementsByClassName("active")[0].click();
+                                    /*$(document).ready(function(){
+                                        $(".entries").empty();
+                                    });
+                                    var query = `query(X,${this.innerHTML},${document.getElementsByClassName(this.innerHTML)[0].children[0].innerHTML})`;
+                                    selArray.splice(selArray.indexOf(query),1);
+                                    for(var i = 0; i < selArray.length; i++) {
+                                        if(query !== ``) {
+                                            query += `,`;
+                                        }
+                                        query += selArray[i];
+                                    }
+                                    query += `.`;
+                                    parsed = session.query(query);
+                                    var res;
+                                    callback = function (answer) { res = pl.format_answer(answer); };
+                                    session.answer(callback);
+                                    while (res != 'false.') {
+                                        var str = document.createElement("P");
+                                        var sp1 = res.split('= ');
+                                        var sp2 = sp1[1].split(';');
+                                        str.innerHTML = sp2[0];
+                                        document.getElementsByClassName('entries')[0].appendChild(str);
+                                        session.answer(callback);
+                                        numChildren++;
+                                    }*/
+                                }
+                                for(var i = 0, l = subArray.length; i < l; i++) {
+                                    subArray.pop();
+                                }
+                                del.remove();
+                            }
+                        }
+                        // if empty
+                        else {
+                            var parsed = session.query(`query(_,${this.innerHTML},X).`);
+                            var subres;
+                            callback = function (answer) { subres = pl.format_answer(answer); };
+                            while(subres != 'false.') {
+                                session.answer(callback);
+                                if(subres == 'false.') {
+                                    break;
+                                }
+                                var contents = subres;
+                                var spl1 = contents.split('= ');
+                                var spl2 = spl1[1].split(' ;');
+                                var change = 0;
+                                
+                                //checking for similarities in values
+
+                                for(var i = 0, l = subArray.length; i < l; i++) {
+                                    if(spl2[0] == subArray[i]) {
+                                        change = 1;
+                                    }
+                                }
+                                if(change == 0) {
+                                    subArray.push(spl2[0]);
+                                    var sub_button = document.createElement("BUTTON");
+                                    sub_button.innerHTML = spl2[0];
+                                    sub_button.className = "sub_button";
+                                    var name = this.innerHTML;
+                                    document.getElementsByClassName(this.innerHTML)[0].classList.add("show");
+                                    document.getElementsByClassName(this.innerHTML)[0].appendChild(sub_button);
+
+                                    // SUB BUTTON CLICKED
+
+                                    var par_info = this.innerHTML;
+                                    sub_button.onclick = function() {
+                                        var node = document.getElementsByClassName("entries")[0].innerHTML = "";
+                                        if (multSel == 0) {
+                                            var numClicked = document.getElementsByClassName("active").length;
+                                            for(var i = 0; i < numClicked; i++) {
+                                                var clicked = document.getElementsByClassName("active")[0];
+                                                clicked.classList.remove("active");
+                                            }
+                                            this.classList.add("active");
+                                            parsed = session.query(`query(X,${par_info},${this.innerHTML}).`);
+                                        }
+                                        else {
+                                            var query = `query(X,${par_info},${this.innerHTML})`;
+                                            // already active
+                                            if(this.classList.contains("active")) {
+                                                this.classList.remove("active");
+                                                selArray.splice(selArray.indexOf(query),1);
+                                                query = ``;
+                                            }
+                                            else {
+                                                this.classList.add("active");
+                                                selArray.push(query);
+                                                query = ``;
+                                            }
+                                            for(var i = 0; i < selArray.length; i++) {
+                                                if(query !== ``) {
+                                                    query += `,`;
+                                                }
+                                                query += selArray[i];
+                                            }
+                                            query += `.`;
+                                            parsed = session.query(query);
+                                        }
+                                        var res;
+                                        callback = function (answer) { res = pl.format_answer(answer); };
+                                        session.answer(callback);
+                                        while (res != 'false.') {
+                                            var str = document.createElement("P");
+                                            var sp1 = res.split('= ');
+                                            var sp2 = sp1[1].split(';');
+                                            str.innerHTML = sp2[0];
+                                            document.getElementsByClassName('entries')[0].appendChild(str);
+                                            session.answer(callback);
+                                            numChildren++;
+                                        }
+                                    }
+                                }
+                            }
+                        }   
                     }
                 }
             }
