@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .nav {
+                background-color: palegoldenrod;
+                border: 2px solid black;
+                font-weight: 900px;
+                position: relative;
+                padding-bottom: 5px;
+                display: block;
+            }
+            .nav:active {
+                background-color: white;
+            }
+            #navL {
+                float: left;
+            }
+            .hidden {
+                display:none;
+            }
+            .unhidden {
+                display:block;
+            }
+            .opening {
+                padding-left: 10px;
+                padding-bottom: .5px;
+            }
+            body {
+                background-color: whitesmoke;
+                font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            }
+            .selection {
+                background-color: powderblue;
+                float: left;
+                width: 43%;
+                padding: 3%;
+                padding-top: 5px;
+                margin-left: 5px;
+                display: flex;
+                flex-direction: column;
+            }
+            .results {
+                background-color: palegoldenrod;
+                float: right;
+                width: 43%;
+                padding: 3%;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                margin-right: 5px;
+            }
+            .title {
+                font-size: 20px;
+                font-weight: 500;
+            }
+            #mult {
+                border: 2px solid black;
+                background-color: lightgray;
+                font-weight: 900px;
+                margin-top: -30px;
+            }
+            button {
+                float: left;
+                background-color: white;
+                border: none;
+                padding: 10px;
+                margin: 5px 10px 10px 10px;
+                word-wrap: break-word;
+            }
+            .sub_button {
+                margin: 5px 1% 1% 1%;
+                display: inline-flex;
+                background-color: grey;
+                color: white;
+            }
+            .sub_button:active {
+                background-color: white;
+                color: black;
+                display: inline-flex;
+                font-style: italic;
+            }
+            .main_button {
+                margin: 3px;
+                background-color: white;
+                position: relative;
+            }
+            .main_button:active {
+                background-color: palegoldenrod;
+            }
+            .selection div {
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+            /*.show {
+                margin: 3px;
+                margin-top: 0px;
+            }*/
+            .active {
+                background-color: palegoldenrod;
+                color: black;
+                font-style: italic;
+            }
+            .selected {
+                color: gray;
+                font-style: italic;
+                word-wrap: break-word;
+            }
+        </style>
+
+        <script type = "text/javascript" src = "core.js"></script>
+        <script type = "text/javascript" src = "dom.js"></script>
+        <script type = "text/javascript" src = "js.js"></script>
+        <script type = "text/javascript" src = "lists.js"></script>
+        <script type = "text/javascript" src = "random.js"></script>
+        <script type = "text/javascript" src = "statistics.js"></script>
+        <div class = "opening">
+            <h1>Multi-access key</h1>
+            <p>A dynamic species identification key in Prolog.
+        </div>
+    </head>
+    <body>
+        <div class = "selection">
+            <p class = "title">Trait Selection</p>
+            <p id = "entry"></p>
+            <button type = "button" id = "mult">Select multiple</button>
+            <button id = "navL" class = "nav">-></button>
+        </div>
+        <div class = "results">
+            <p class = "title">Results</p>
+            <div class = "entries"></div>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script type="text/javascript">	
+            const request = 'users/';
+            // have a series of ajax calls to manipulate dom.
+            // have one to process user requests.
+            
+            // returns a string of the results of the entire query
+            jQuery.extend({
+                getValues: function(str) {
+                    var result = null;
+                    $.ajax({
+                        url: request,
+                        type: 'GET',
+                        contentType: 'application/json',
+                        async: false,
+                        data: {
+                            'query': str
+                        },
+                        success: (data) => {
+                            result = data;
+                        },
+                        error: (xhr, ajaxOptions, thrownError) => {
+                            console.log(xhr);
+                            console.log(ajaxOptions);
+                            console.log(thrownError);
+                        }
+                    });
+                    return result;
+                }
+            });
+            // NEW QUERY
+            var results = $.getValues('query(_,X,Y).');
+            var sp1 = results.split(';');
+            var arr = [];
+            var attrs = [];
+
+            // pushes attr and val into arr
+            for(var i = 0; i < sp1.length-1; i++) {
+                var sp2 = sp1[i].split(', ');
+                var attr1 = sp2[0].split(' = ');
+                var attr = `${attr1[1]}`;
+                var val1 = sp2[1].split(' = ');
+                var val = `${val1[1]}`;
+                // check if already present in array
+                var change = 0;
+                var change2 = 0;
+                for(var j = 0; j < arr.length-1; j+=2) {
+                    if(arr[j] == attr && arr[j+1] == val) { change = 1; }
+                }
+                for(var k = 0; k < attrs.length; k++) {
+                    if(attrs[k] == attr) { change2 = 1;}
+                }
+                if(change == 0) {
+                    arr.push(attr);
+                    arr.push(val);
+                }
+                if(change2 == 0) {
+                    attrs.push(attr);
+                }
+            }
+            // traverses through the array, makes a button for each attr
+            // arr[i] = attr
+            // arr[i+1] = val
+            for(var i = 0; i < attrs.length; i++) {
+                var btn = document.createElement("BUTTON");
+                btn.innerHTML = attrs[i];
+                btn.className = "main_button";
+                document.getElementsByClassName("selection")[0].appendChild(btn);
+
+                // CREATE CONTAINER DIV
+
+                var container = document.createElement("DIV");
+                document.getElementsByClassName("selection")[0].appendChild(container);
+                container.className = btn.innerHTML;
+                var numChildren = 0;
+                var multSel = 0;
+                var mult = document.getElementById("mult");
+                var selArray = [];
+                var nameArray = [];
+                var nameVals = document.createElement("P");
+                var n1 = "Selected: ";
+
+                // SELECTING MULTIPLE TRAITS
+
+                mult.onclick = function() {
+                    n1 = "Selected: ";
+                    if(multSel == 0) {
+                        var numClicked = document.getElementsByClassName("active").length;
+                        for(var i = 0; i < numClicked; i++) {
+                            var clicked = document.getElementsByClassName("active")[0];
+                            clicked.classList.remove("active");
+                        }
+                        this.style.fontStyle = "italic";
+                        this.style.backgroundColor = "palegoldenrod";
+                        multSel = 1;
+                    }
+                    else {
+                        var numClicked = document.getElementsByClassName("active").length;
+                        for(var i = 0; i < numClicked; i++) {
+                            var clicked = document.getElementsByClassName("active")[0];
+                            clicked.classList.remove("active");
+                        }
+                        this.style.fontStyle = "normal";
+                        this.style.backgroundColor = "lightgray";
+                        entry
+                        multSel = 0;
+                        var nameArray = [];
+                        selArray = [];
+                    }
+                }
+
+                // BUTTON CLICKED
+                btn.onclick = function() {
+                    var subArray = [];
+                    // CREATING SUB-BUTTONS
+
+                    // if main button has already been clicked
+                    if(document.getElementsByClassName(this.innerHTML)[0].firstChild != null) {
+                        while(document.getElementsByClassName(this.innerHTML)[0].children[0] != null) {
+                            var del = document.getElementsByClassName(this.innerHTML)[0].children[0];
+                            if(del === document.getElementsByClassName(this.innerHTML)[0].getElementsByClassName("active")[0]) {
+                                document.getElementsByClassName(this.innerHTML)[0].getElementsByClassName("active")[0].click();
+                            }
+                            for(var i = 0, l = subArray.length; i < l; i++) {
+                                subArray.pop();
+                            }
+                            del.remove();
+                        }
+                    }
+                    // if empty
+                    else {
+                        // NEW QUERY
+                        var results2 = $.getValues('query(_,'+this.innerHTML+',X).');
+                        var sp1 = results2.split(';');
+                        var vals = [];
+                        // pushes attr and val into arr
+                        for(var i = 0; i < sp1.length-1; i++) {
+                            var val = sp1[i].split('= ');
+                            // check if already present in array
+                            var change = 0;
+                            if(vals.indexOf(val[1]) != -1) { change = 1; }
+                            if(change == 0) {
+                                vals.push(val[1]);
+                            }
+                        }
+                        for(var i = 0; i < vals.length; i++) {
+                                if(vals[i].includes("undefined")) { break; }
+                                var sub_button = document.createElement("BUTTON");
+                                sub_button.innerHTML = vals[i];
+                                sub_button.className = "sub_button";
+                                var name = this.innerHTML;
+                                document.getElementsByClassName(this.innerHTML)[0].classList.add("show");
+                                document.getElementsByClassName(this.innerHTML)[0].appendChild(sub_button);
+
+                                // SUB BUTTON CLICKED
+
+                                var par_info = this.innerHTML;
+                                sub_button.onclick = function() {
+                                    var query = "";
+                                    var node = document.getElementsByClassName("entries")[0].innerHTML = "";
+                                    // if select multiple not pressed
+                                    n1 = "Selected: ";
+                                    if (multSel == 0) {
+                                        n1 = n1.concat(par_info);
+                                        n1 = n1.concat(" - ");
+                                        n1 = n1.concat(this.innerHTML);
+                                        n1 = n1.concat("\n");
+                                        var numClicked = document.getElementsByClassName("active").length;
+                                        for(var i = 0; i < numClicked; i++) {
+                                            var clicked = document.getElementsByClassName("active")[0];
+                                            clicked.classList.remove("active");
+                                        }
+                                        this.classList.add("active");
+                                        // NEW QUERY
+                                        query = 'query(X,'+par_info+','+this.innerHTML+').';
+                                    }
+                                    else {
+                                        // creates a COMPOUND query
+                                        var name = par_info;
+                                        name = name.concat(" - ");
+                                        name = name.concat(this.innerHTML);
+                                        query = 'query(X,'+par_info+','+this.innerHTML+')';
+                                        // already active
+                                        if(this.classList.contains("active")) {
+                                            this.classList.remove("active");
+                                            selArray.splice(selArray.indexOf(query),1);
+                                            nameArray.splice(nameArray.indexOf(name),1);
+                                            query = '';
+                                            n1 = 'Selected: ';
+                                        }
+                                        else {
+                                            this.classList.add("active");
+                                            selArray.push(query);
+                                            nameArray.push(name);
+                                            query = '';
+                                        }
+                                        for(var i = 0; i < selArray.length; i++) {
+                                            if(query !== '') {
+                                                query += ',';
+                                                n1 = n1.concat(", ");
+                                            }
+                                            n1 = n1.concat(nameArray[i]);
+                                            query += selArray[i];
+                                        }
+                                        query += '.';
+                                    }
+                                    //  PRINTS RESULTS
+                                    nameVals.innerHTML = n1;
+                                    nameVals.classList.add("selected");
+
+                                    document.getElementsByClassName('entries')[0].appendChild(nameVals);
+                                    var results3 = $.getValues(query);
+                                    var sp = results3.split(';');
+                                    for(var l = 0; l < sp.length-1; l++) {
+                                        var str = document.createElement("P");
+                                        var sp1 = sp[l].split('= ');
+                                        if(sp1[1].includes("undefined")) { break; }
+                                        str.innerHTML = sp1[1].split("_").join(" ");
+                                        document.getElementsByClassName('entries')[0].appendChild(str);
+                                        numChildren++;
+                                    }
+                                }
+                            }
+                        }
+                    }   
+                }
+                var numBtns = document.getElementsByClassName("main_button").length;
+                //document.getElementsByClassName("main_button").classList.add("hidden");
+                for(var j = 0; j < numBtns; j++) {
+                    var tmp = document.getElementsByClassName("main_button")[j];
+                    tmp.classList.add("hidden");
+                }
+                var offset = 0;
+                for(var i = 0; i < 5; i++) {
+                    var main = document.getElementsByClassName("main_button");
+                    main[i].classList.add("unhidden");
+                }
+                var right = document.getElementsByClassName("nav")[0];
+                right.innerHTML = "PAGE: 1";
+                right.onclick = function() {
+                    for(var i = offset; i < offset+5; i++) {
+                        var main = document.getElementsByClassName("main_button");
+                        var sub = document.getElementsByClassName("sub_button");
+                        for(var s = 0; s < sub.length; s++) {
+                            sub[s].style.display = "none";
+                        }
+                        if(main[i]) {
+                            main[i].classList.remove("unhidden");
+                            main[i].classList.add("hidden");
+                        }
+                    }
+                    offset += 5;
+                    //console.log(numBtns);
+                    //console.log(offset);
+                    if(offset > numBtns) {
+                        offset = 0;
+                    }
+                    for(var i = offset; i < offset+5; i++) {
+                        var main = document.getElementsByClassName("main_button");
+                        if(!main[i] && (i == offset)) {
+                            offset = 0;
+                            i = 0;
+                        }
+                        if(main[i]) {
+                            main[i].classList.remove("hidden");
+                            main[i].classList.add("unhidden"); 
+                        }
+                    }
+                    right.innerHTML = "PAGE: " + ((offset/5)+1);
+                }
+        </script>
+    </body>
+</html>
